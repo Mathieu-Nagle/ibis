@@ -14,7 +14,7 @@ __all__ += api.__all__
 
 __version__ = "3.2.0"
 
-_KNOWN_BACKENDS = ['bigquery', 'heavyai']
+_KNOWN_BACKENDS = ['bigquery', 'heavyai','kdb']
 
 
 def __dir__() -> list[str]:

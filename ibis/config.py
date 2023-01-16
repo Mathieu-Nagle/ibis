@@ -165,6 +165,7 @@ class Options(Config):
     impala: Optional[Config] = None
     pandas: Optional[Config] = None
     pyspark: Optional[Config] = None
+    kdb: Optional[Config] = None
 
 
 _HAS_DUCKDB = True
