@@ -55,16 +55,20 @@ class BaseKDBBackend(BaseBackend):
 
         #Connect the q session
         q = qconnection.QConnection(host = host, port = port)
+        qpandas = qconnection.QConnection(host=host, port=port, pandas=True)
         #Open handle
         q.open()
+        qpandas.open()
+
         print(q)
+        print(qpandas)
+
         print('IPC version: %s. Is connected: %s' % (q.protocol_version, q.is_connected()))
-        q.query(qconnection.MessageType.SYNC, 'tab')
-        msg = q.receive(data_only=False, raw=False) # retrieve entire message
-        print('type: %s, message type: %s, data size: %s, is_compressed: %s ' % (type(msg), msg.type, msg.size, msg.is_compressed))
-        data = msg.data
-        print('type: %s, numpy.dtype: %s, meta.qtype: %s, data: %s ' % (type(data), data.dtype, data.meta.qtype, data))
+
         self.q = q
+        self.qpandas = qpandas
+
+        self.schemas: MutableMapping[str, sch.Schema] = {}
 
     def from_dataframe(
         self,
@@ -108,17 +112,19 @@ class BaseKDBBackend(BaseBackend):
     def list_tables(self, like=None, database=None):
         return self._filter_with_like(list(self.dictionary.keys()), like)
 
-    def table(self, name: str, schema: sch.Schema = None):
-        df = self.dictionary[name]
-        schema = sch.infer(df, schema=schema or self.schemas.get(name, None))
-        return self.table_class(name, schema, self).to_expr()
+    # def table(self, name: str, schema: sch.Schema = None):
+    #     df = self.dictionary[name]
+    #     schema = sch.infer(df, schema=schema or self.schemas.get(name, None))
+    #     return self.table_class(name, schema, self).to_expr()
 
     def database(self, name=None):
         return self.database_class(name, self)
 
-    def load_data(self, table_name):
-        print("test")
-        # kwargs is a catch all for any options required by other backends.
+    def table(self, table_name: str):
+        return self.qpandas(table_name)
+
+        # return self.table_class(table_name, schema, self).to_expr()
+        # # kwargs is a catch all for any options required by other backends.
         # self.dictionary[table_name] = obj
 
     def get_schema(self, table_name, database=None):
