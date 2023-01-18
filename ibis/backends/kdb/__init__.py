@@ -61,14 +61,14 @@ class BaseKDBBackend(BaseBackend):
         qpandas.open()
 
         print(q)
-        print(qpandas)
-
         print('IPC version: %s. Is connected: %s' % (q.protocol_version, q.is_connected()))
 
         self.q = q
         self.qpandas = qpandas
 
-        self.schemas: MutableMapping[str, sch.Schema] = {}
+    def close(self):
+        self.q.close()
+        self.qpandas.close()
 
     def from_dataframe(
         self,
